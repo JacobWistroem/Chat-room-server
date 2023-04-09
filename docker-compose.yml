@@ -1,0 +1,77 @@
+services:
+  mongo1:
+    container_name: mongo1
+    hostname: mongo1
+    image: amd64/mongo:latest
+    ports:
+      - 30001:27017
+    restart: always
+    entrypoint:
+      [
+        "mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "chat-cluster-set"
+      ]
+    networks:
+      - mongoNetwork
+    volumes:
+      - mongo1-db:/data/db
+  mongo2:
+    container_name: mongo2
+    hostname: mongo2
+    image: amd64/mongo:latest
+    ports:
+      - 30002:27017
+    restart: always
+    entrypoint:
+      [
+        "mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "chat-cluster-set"
+      ]
+    networks:
+      - mongoNetwork
+    volumes:
+      - mongo2-db:/data/db
+  mongo3:
+    container_name: mongo3
+    hostname: mongo3
+    image: amd64/mongo:latest
+    ports:
+      - 30003:27017
+    restart: always
+    entrypoint:
+      [
+        "mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "chat-cluster-set"
+      ]
+    networks:
+      - mongoNetwork
+    volumes:
+      - mongo3-db:/data/db'
+  #Run initMongo to initialize the cluster
+  #We run a bash script to wait a few seconds before execute the config file
+  initMongo:
+    image: amd64/mongo:latest
+    ports:
+      - 30004:27017
+    volumes:
+      - ./scripts/initMongoReplica.sh:/scripts/initMongoReplica.sh
+    restart: "no"
+    networks:
+      - mongoNetwork
+    entrypoint: [ "sh", "/scripts/initMongoReplica.sh" ]
+networks:
+  mongoNetwork:
+    driver: bridge
+volumes:
+  mongo1-db:
+    driver: local
+  mongo2-db:
+    driver: local
+  mongo3-db:
+    driver: local
